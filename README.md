@@ -13,43 +13,49 @@ A blockchain-verified accountability system that gamifies studying through token
 ## Project Structure
 
 ```
-├── program/          # Solana program (Rust)
-├── app/              # Frontend React application
+├── program/          # Solana program (Rust) - optional
+├── index.html        # Main webpage with all functionality
 └── README.md
 ```
 
 ## Prerequisites
 
-- Node.js 18+ and npm/yarn
-- Rust and Solana CLI tools
+- A modern web browser (Chrome, Firefox, Edge, etc.)
 - Phantom Wallet browser extension
+- (Optional) Rust and Solana CLI tools for program development
 
 ## Setup
 
-### 1. Install Solana CLI
+### 1. Install Phantom Wallet
 
+1. Go to https://phantom.app/
+2. Install the Phantom wallet extension for your browser
+3. Create a new wallet or import an existing one
+4. Switch to Devnet in Phantom settings (Settings > Developer Mode > Change Network)
+
+### 2. Open the Webpage
+
+Simply open `index.html` in your web browser, or serve it using a local web server:
+
+**Option A - Direct file open:**
+- Double-click `index.html` (works in most browsers)
+
+**Option B - Using Python (if installed):**
 ```bash
-sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+python -m http.server 8000
+```
+Then open http://localhost:8000
+
+**Option C - Using Node.js http-server:**
+```bash
+npx http-server
 ```
 
-### 2. Install Dependencies
+### 3. Connect Your Wallet
 
-```bash
-# Install frontend dependencies
-cd app
-npm install
-
-# Build Solana program
-cd ../program
-cargo build-sbf
-```
-
-### 3. Run Development Server
-
-```bash
-cd app
-npm run dev
-```
+1. Click "Connect Phantom Wallet" button
+2. Approve the connection in Phantom wallet popup
+3. Start using the app!
 
 ## How It Works
 
@@ -62,8 +68,22 @@ npm run dev
 ## Technology Stack
 
 - **Blockchain**: Solana
-- **Smart Contract**: Rust (Solana Program)
-- **Frontend**: React + TypeScript
+- **Smart Contract**: Rust (Solana Program) - optional
+- **Frontend**: Pure HTML/CSS/JavaScript
 - **Wallet**: Phantom Wallet Extension
-- **Web3**: @solana/web3.js, @solana/wallet-adapter-react
+- **Web3**: @solana/web3.js (via CDN)
+
+## Development
+
+### Building the Solana Program (Optional)
+
+If you want to deploy the Solana program:
+
+```bash
+cd program
+cargo build-sbf
+solana program deploy target/deploy/study_staking.so --url devnet
+```
+
+Then update the program ID in `index.html` to interact with your deployed program.
 

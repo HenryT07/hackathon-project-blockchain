@@ -29,3 +29,6 @@ test-ledger/
 *.dylib
 *.dll
 
+# Next.js (if any remnants)
+.next/
+out/
