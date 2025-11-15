@@ -38,6 +38,29 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
+    position: relative;
+}
+
+.header-actions {
+    margin: 15px 0;
+}
+
+.btn-classroom-header {
+    background: #9b59b6;
+    color: white;
+    padding: 10px 20px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+}
+
+.btn-classroom-header:hover {
+    background: #8e44ad;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
 }
 
 header h1 {
@@ -73,6 +96,18 @@ header h1 {
 .btn-wallet.connected {
     background: #27ae60;
     cursor: default;
+}
+
+.btn-test {
+    background: #3498db;
+    color: white;
+    padding: 10px 15px;
+    font-size: 0.85em;
+    margin-left: 10px;
+}
+
+.btn-test:hover {
+    background: #2980b9;
 }
 
 .wallet-info {
@@ -190,6 +225,27 @@ header h1 {
 /* Start Screen */
 .start-content {
     text-align: center;
+}
+
+.start-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.btn-classroom {
+    background: #9b59b6;
+    color: white;
+    width: 100%;
+    max-width: 300px;
+}
+
+.btn-classroom:hover {
+    background: #8e44ad;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
 }
 
 .start-content h2 {
@@ -602,6 +658,118 @@ header h1 {
 
 .leaderboard-actions {
     margin-top: 30px;
+}
+
+/* Classroom Styles */
+.classroom-content {
+    text-align: center;
+}
+
+.classroom-content h2 {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+.classroom-options {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin: 30px 0;
+}
+
+.classroom-option {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.classroom-option h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.classroom-divider {
+    font-weight: bold;
+    color: #999;
+    font-size: 1.2em;
+}
+
+.classroom-input {
+    width: 200px;
+    padding: 12px;
+    font-size: 1.2em;
+    text-align: center;
+    letter-spacing: 0.2em;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin: 10px;
+    text-transform: uppercase;
+}
+
+.classroom-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.classroom-info {
+    margin-top: 30px;
+    padding: 20px;
+    background: #e8f5e9;
+    border-radius: 12px;
+}
+
+.classroom-info h3 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.classroom-info #classroom-code-display {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #667eea;
+    letter-spacing: 0.1em;
+}
+
+.active-players {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.active-players h4 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.players-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.player-item {
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #667eea;
+    font-size: 0.9em;
+}
+
+.classroom-badge {
+    background: #e3f2fd;
+    padding: 10px 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9em;
+    color: #1976d2;
+}
+
+.classroom-badge span {
+    font-weight: 600;
 }
 
 /* Timer Animation */

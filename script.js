@@ -287,6 +287,22 @@ const leaderboardScreen = document.getElementById('leaderboard-screen');
 const leaderboardList = document.getElementById('leaderboard-list');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 const disconnectWalletBtn = document.getElementById('disconnect-wallet-btn');
+const testPhantomBtn = document.getElementById('test-phantom-btn');
+const classroomBtn = document.getElementById('classroom-btn');
+const classroomScreen = document.getElementById('classroom-screen');
+const createClassroomBtn = document.getElementById('create-classroom-btn');
+const joinClassroomBtn = document.getElementById('join-classroom-btn');
+const classroomCodeInput = document.getElementById('classroom-code-input');
+const classroomInfo = document.getElementById('classroom-info');
+const classroomCodeDisplay = document.getElementById('classroom-code-display');
+const playerCount = document.getElementById('player-count');
+const playersList = document.getElementById('players-list');
+const startClassroomGameBtn = document.getElementById('start-classroom-game-btn');
+const leaveClassroomBtn = document.getElementById('leave-classroom-btn');
+const currentClassroomCode = document.getElementById('current-classroom-code');
+const classroomBadge = document.getElementById('classroom-badge');
+const classroomPlayersCount = document.getElementById('classroom-players-count');
+const headerClassroomBtn = document.getElementById('header-classroom-btn');
 
 // Initialize Game
 function init() {
@@ -299,9 +315,46 @@ function init() {
     if (disconnectWalletBtn) {
         disconnectWalletBtn.addEventListener('click', disconnectWallet);
     }
+    if (testPhantomBtn) {
+        testPhantomBtn.addEventListener('click', testPhantom);
+    }
     viewLeaderboardBtn.addEventListener('click', showLeaderboard);
     leaderboardBtn.addEventListener('click', showLeaderboard);
     closeLeaderboardBtn.addEventListener('click', closeLeaderboard);
+    
+    // Classroom functionality
+    if (classroomBtn) {
+        classroomBtn.addEventListener('click', () => showScreen('classroom-screen'));
+    }
+    if (headerClassroomBtn) {
+        headerClassroomBtn.addEventListener('click', () => showScreen('classroom-screen'));
+    }
+    if (createClassroomBtn) {
+        createClassroomBtn.addEventListener('click', createClassroom);
+    }
+    if (joinClassroomBtn) {
+        joinClassroomBtn.addEventListener('click', joinClassroom);
+    }
+    if (startClassroomGameBtn) {
+        startClassroomGameBtn.addEventListener('click', () => {
+            showScreen('start-screen');
+            updateClassroomBadge();
+            // Start polling for players if connected
+            if (classroomManager.classroomCode && classroomManager.isConnected) {
+                classroomManager.startPolling();
+            }
+        });
+    }
+    if (leaveClassroomBtn) {
+        leaveClassroomBtn.addEventListener('click', leaveClassroom);
+    }
+    if (classroomCodeInput) {
+        classroomCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinClassroom();
+            }
+        });
+    }
     
     // Update prize pool display on load
     blockchainGame.updatePrizePoolDisplay();
@@ -312,6 +365,13 @@ function init() {
         checkExistingConnection();
         // Also check what's available for debugging
         checkPhantomAvailability();
+        
+        // Show test button if Phantom not detected
+        if (!blockchainGame.getPhantomProvider()) {
+            if (testPhantomBtn) {
+                testPhantomBtn.style.display = 'inline-block';
+            }
+        }
     }, 500);
 }
 
@@ -622,6 +682,12 @@ async function endGame() {
     
     // Submit score to Solana and add to leaderboard
     const walletAddr = blockchainGame.publicKey ? blockchainGame.publicKey.toString() : null;
+    
+    // Check if wallet is connected before saving
+    if (!walletAddr || walletAddr.startsWith('Demo') || walletAddr === 'Anonymous') {
+        console.warn('⚠️ No wallet connected - score will not be saved to leaderboard');
+    }
+    
     await blockchainGame.submitScoreToSolana(
         gameState.score,
         gameState.totalSuccessfulHashes
@@ -755,6 +821,11 @@ function updateWalletUI(address) {
     connectWalletBtn.disabled = true;
     connectWalletBtn.classList.add('connected');
     
+    // Hide test button when connected
+    if (testPhantomBtn) {
+        testPhantomBtn.style.display = 'none';
+    }
+    
     if (disconnectWalletBtn) {
         disconnectWalletBtn.style.display = 'inline-block';
     }
@@ -770,6 +841,51 @@ async function disconnectWallet() {
         connectWalletBtn.classList.remove('connected');
     } catch (error) {
         console.error('Error disconnecting wallet:', error);
+    }
+}
+
+// Test Phantom Availability
+function testPhantom() {
+    console.log('=== Testing Phantom Availability ===');
+    
+    const results = {
+        'window exists': typeof window !== 'undefined',
+        'window.solana exists': typeof window !== 'undefined' && !!window.solana,
+        'window.solana type': typeof window !== 'undefined' && window.solana ? typeof window.solana : 'N/A',
+        'window.solana.isPhantom': typeof window !== 'undefined' && window.solana && !!window.solana.isPhantom,
+        'window.solana.connect': typeof window !== 'undefined' && window.solana && typeof window.solana.connect === 'function',
+        'window.solana.publicKey': typeof window !== 'undefined' && window.solana && window.solana.publicKey !== undefined,
+        'window.phantom exists': typeof window !== 'undefined' && !!window.phantom,
+        'Protocol': typeof window !== 'undefined' ? window.location.protocol : 'N/A',
+        'URL': typeof window !== 'undefined' ? window.location.href : 'N/A'
+    };
+    
+    console.table(results);
+    
+    if (window.solana) {
+        console.log('window.solana object:', window.solana);
+        console.log('window.solana keys:', Object.keys(window.solana));
+    }
+    
+    const provider = blockchainGame.getPhantomProvider();
+    if (provider) {
+        alert('✅ Phantom detected!\n\nClick "Connect Phantom" to connect.');
+    } else {
+        let msg = '❌ Phantom not detected\n\n';
+        msg += 'Check console (F12) for details.\n\n';
+        if (window.location.protocol === 'file:') {
+            msg += '⚠️ You are using file:// protocol.\n';
+            msg += 'Extensions cannot inject on local files.\n\n';
+            msg += 'Solution: Run via local server:\n';
+            msg += 'python -m http.server 8000\n';
+            msg += 'Then open: http://localhost:8000';
+        } else {
+            msg += 'Make sure:\n';
+            msg += '1. Phantom extension is installed\n';
+            msg += '2. Extension is ENABLED\n';
+            msg += '3. Browser was restarted after install';
+        }
+        alert(msg);
     }
 }
 
@@ -817,6 +933,13 @@ async function checkExistingConnection() {
 
 // Show Leaderboard
 function showLeaderboard() {
+    // Check if in classroom mode
+    if (classroomManager.classroomCode) {
+        showClassroomLeaderboard();
+        return;
+    }
+    
+    // Show global leaderboard
     const topPlayers = blockchainGame.getTopPlayers(20);
     leaderboardList.innerHTML = '';
     
@@ -854,6 +977,95 @@ function closeLeaderboard() {
             showScreen('start-screen');
         }
     }
+}
+
+// Classroom Functions (defined here to avoid loading issues)
+async function createClassroom() {
+    try {
+        const code = await classroomManager.createClassroom();
+        classroomCodeDisplay.textContent = code;
+        classroomInfo.style.display = 'block';
+        classroomManager.updatePlayersDisplay();
+        
+        // Copy code to clipboard
+        navigator.clipboard.writeText(code).then(() => {
+            alert(`Classroom created! Code: ${code}\n\nCode copied to clipboard - share it with others!`);
+        }).catch(() => {
+            alert(`Classroom created! Code: ${code}\n\nShare this code with others to join!`);
+        });
+    } catch (error) {
+        alert('Error creating classroom: ' + error.message);
+    }
+}
+
+async function joinClassroom() {
+    const code = classroomCodeInput.value.trim().toUpperCase();
+    
+    if (!code || code.length !== 6) {
+        alert('Please enter a valid 6-digit classroom code');
+        return;
+    }
+    
+    try {
+        await classroomManager.joinClassroom(code);
+        classroomCodeDisplay.textContent = code;
+        classroomInfo.style.display = 'block';
+        classroomCodeInput.value = '';
+        classroomManager.updatePlayersDisplay();
+        alert(`Successfully joined classroom ${code}!`);
+    } catch (error) {
+        alert('Error joining classroom: ' + error.message + '\n\nMake sure the code is correct!');
+    }
+}
+
+async function leaveClassroom() {
+    await classroomManager.leaveClassroom();
+    classroomInfo.style.display = 'none';
+    classroomCodeDisplay.textContent = '';
+    showScreen('start-screen');
+    updateClassroomBadge();
+}
+
+function updateClassroomBadge() {
+    if (classroomManager.classroomCode) {
+        classroomBadge.style.display = 'inline-flex';
+        currentClassroomCode.textContent = classroomManager.classroomCode;
+        classroomPlayersCount.textContent = `(${classroomManager.players.length} players)`;
+    } else {
+        classroomBadge.style.display = 'none';
+    }
+}
+
+async function showClassroomLeaderboard() {
+    if (!classroomManager.classroomCode) {
+        showLeaderboard();
+        return;
+    }
+    
+    const leaderboard = await classroomManager.getClassroomLeaderboard();
+    leaderboardList.innerHTML = '';
+    
+    if (leaderboard.length === 0) {
+        leaderboardList.innerHTML = '<p class="no-leaders">No scores yet in this classroom. Be the first!</p>';
+    } else {
+        leaderboard.forEach((entry, index) => {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'leaderboard-entry';
+            entryDiv.innerHTML = `
+                <div class="rank">#${index + 1}</div>
+                <div class="player-info">
+                    <div class="player-address">${entry.playerName || entry.address}</div>
+                    <div class="player-stats">
+                        <span>Score: ${entry.score}</span>
+                        <span>Hashes: ${entry.successfulHashes || 0}</span>
+                    </div>
+                </div>
+            `;
+            leaderboardList.appendChild(entryDiv);
+        });
+    }
+    
+    showScreen('leaderboard-screen');
 }
 
 // Initialize on load

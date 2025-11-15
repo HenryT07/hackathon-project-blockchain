@@ -12,8 +12,12 @@
         <header>
             <h1>⛓️ Solana Trivia Game</h1>
             <p class="subtitle">Mine hashes, compete on the leaderboard, and win SOL prizes!</p>
+            <div class="header-actions">
+                <button id="header-classroom-btn" class="btn btn-classroom-header">🏫 Classroom</button>
+            </div>
             <div class="wallet-connect">
                 <button id="connect-wallet-btn" class="btn btn-wallet">Connect Phantom</button>
+                <button id="test-phantom-btn" class="btn btn-test" style="display: none;" title="Test Phantom availability">🔍 Test</button>
                 <div id="wallet-info" class="wallet-info" style="display: none;">
                     <span id="wallet-address"></span>
                     <button id="disconnect-wallet-btn" class="btn-disconnect" title="Disconnect wallet">×</button>
@@ -37,10 +41,43 @@
             </div>
         </div>
 
+        <!-- Classroom Screen -->
+        <div id="classroom-screen" class="screen">
+            <div class="classroom-content">
+                <h2>🏫 Join or Create Classroom</h2>
+                <div class="classroom-options">
+                    <div class="classroom-option">
+                        <h3>Create Classroom</h3>
+                        <button id="create-classroom-btn" class="btn btn-primary">Create New Classroom</button>
+                    </div>
+                    <div class="classroom-divider">OR</div>
+                    <div class="classroom-option">
+                        <h3>Join Classroom</h3>
+                        <input type="text" id="classroom-code-input" placeholder="Enter 6-digit code" maxlength="6" class="classroom-input">
+                        <button id="join-classroom-btn" class="btn btn-secondary">Join</button>
+                    </div>
+                </div>
+                <div id="classroom-info" class="classroom-info" style="display: none;">
+                    <h3>Classroom: <span id="classroom-code-display"></span></h3>
+                    <p>Share this code with others to join!</p>
+                    <div class="active-players">
+                        <h4>Active Players: <span id="player-count">0</span></h4>
+                        <div id="players-list" class="players-list"></div>
+                    </div>
+                    <button id="start-classroom-game-btn" class="btn btn-primary">Start Game</button>
+                    <button id="leave-classroom-btn" class="btn btn-danger">Leave Classroom</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Start Screen -->
         <div id="start-screen" class="screen active">
             <div class="start-content">
                 <h2>Welcome to Blockchain Trivia!</h2>
+                <div id="classroom-badge" class="classroom-badge" style="display: none;">
+                    <span>Classroom: <span id="current-classroom-code"></span></span>
+                    <span id="classroom-players-count"></span>
+                </div>
                 <p class="game-description">Answer questions correctly to generate hashes. Successful hashes earn you points for the leaderboard. Unsuccessful hashes contribute to the prize pool!</p>
                 <div class="category-select">
                     <label for="category">Choose a Category:</label>
@@ -63,7 +100,10 @@
                         <label for="hard">Hard</label>
                     </div>
                 </div>
-                <button id="start-btn" class="btn btn-primary">Start Game</button>
+                <div class="start-buttons">
+                    <button id="start-btn" class="btn btn-primary">Start Game</button>
+                    <button id="classroom-btn" class="btn btn-classroom">🏫 Join/Create Classroom</button>
+                </div>
             </div>
         </div>
 
@@ -157,6 +197,7 @@
     </div>
 
     <script src="blockchain.js"></script>
+    <script src="classroom.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

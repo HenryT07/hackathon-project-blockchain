@@ -339,9 +339,23 @@ class SolanaTriviaGame {
 
     // Submit Score to Solana Program
     async submitScoreToSolana(score, successfulHashes) {
-        if (!this.publicKey || !this.programId) {
-            // Program not deployed, just store locally
-            this.addToLeaderboard(score, successfulHashes, this.publicKey ? this.publicKey.toString() : null);
+        // Check if wallet is actually connected
+        if (!this.publicKey) {
+            console.warn('⚠️ No wallet connected - score not saved to leaderboard');
+            return;
+        }
+        
+        const walletAddr = this.publicKey.toString();
+        
+        // Check if it's a valid Solana address (not demo)
+        if (walletAddr.startsWith('Demo') || walletAddr === 'Anonymous') {
+            console.warn('⚠️ Demo mode - score not saved to leaderboard');
+            return;
+        }
+        
+        if (!this.programId) {
+            // Program not deployed, store locally with wallet address
+            this.addToLeaderboard(score, successfulHashes, walletAddr);
             return;
         }
 
@@ -363,7 +377,13 @@ class SolanaTriviaGame {
 
     // Add Score to Leaderboard
     addToLeaderboard(score, successfulHashes, walletAddress) {
-        const playerAddress = walletAddress || (this.publicKey ? this.publicKey.toString() : 'Anonymous');
+        // Only save if we have a valid wallet address (not demo/anonymous)
+        if (!walletAddress || walletAddress === 'Anonymous' || walletAddress.startsWith('Demo')) {
+            console.warn('Score not saved to leaderboard - no valid wallet connected');
+            return;
+        }
+        
+        const playerAddress = walletAddress;
         const shortAddress = this.shortenAddress(playerAddress);
         
         const entry = {
