@@ -1,12 +1,11 @@
 [package]
-name = "trivia-game"
+name = "study-staking"
 version = "0.1.0"
-description = "Solana Trivia Game with Prize Pool and Leaderboard"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "trivia_game"
+name = "study_staking"
 
 [features]
 no-entrypoint = []
@@ -16,6 +15,7 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "0.29.0"
-anchor-spl = "0.29.0"
+solana-program = "~1.18"
+borsh = "1.3.0"
+thiserror = "1.0"
 
