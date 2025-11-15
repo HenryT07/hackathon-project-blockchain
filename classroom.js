@@ -5,8 +5,7 @@ class ClassroomManager {
         this.classroomCode = null;
         this.playerId = null;
         this.playerName = null;
-        // Auto-detect server URL or use configured one
-        this.serverUrl = this.getServerUrl();
+        this.serverUrl = 'http://localhost:3000'; // Backend server URL
         this.pollInterval = null;
         this.players = [];
         this.isConnected = false;
@@ -14,30 +13,6 @@ class ClassroomManager {
         // Generate unique player ID
         this.playerId = this.generatePlayerId();
         this.playerName = this.getPlayerName();
-    }
-
-    // Get server URL - check localStorage first, then default
-    getServerUrl() {
-        // Check if user has configured a custom server URL
-        const savedUrl = localStorage.getItem('classroomServerUrl');
-        if (savedUrl) {
-            return savedUrl;
-        }
-        
-        // Default to same origin (if server is on same host) or localhost
-        const hostname = window.location.hostname;
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:3000';
-        } else {
-            // If deployed, assume server is on same host but different port
-            return `http://${hostname}:3000`;
-        }
-    }
-
-    // Set custom server URL
-    setServerUrl(url) {
-        this.serverUrl = url;
-        localStorage.setItem('classroomServerUrl', url);
     }
 
     // Generate unique player ID

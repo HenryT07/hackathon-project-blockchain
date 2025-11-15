@@ -127,30 +127,8 @@ setInterval(() => {
     }
 }, 60 * 60 * 1000);
 
-// Get local IP address for network access
-const os = require('os');
-
-function getLocalIP() {
-    const interfaces = os.networkInterfaces();
-    for (const name of Object.keys(interfaces)) {
-        for (const iface of interfaces[name]) {
-            // Skip internal (loopback) and non-IPv4 addresses
-            if (iface.family === 'IPv4' && !iface.internal) {
-                return iface.address;
-            }
-        }
-    }
-    return 'localhost';
-}
-
-const LOCAL_IP = getLocalIP();
-
-// Listen on all network interfaces (0.0.0.0) so others can connect
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Classroom server running!`);
-    console.log(`📚 Local: http://localhost:${PORT}`);
-    console.log(`🌐 Network: http://${LOCAL_IP}:${PORT}`);
-    console.log(`\n💡 Share the network URL with others to join your classroom!`);
-    console.log(`   Make sure they use: http://${LOCAL_IP}:${PORT} as the server URL`);
+app.listen(PORT, () => {
+    console.log(`🚀 Classroom server running on http://localhost:${PORT}`);
+    console.log(`📚 Ready to manage classrooms!`);
 });
 
