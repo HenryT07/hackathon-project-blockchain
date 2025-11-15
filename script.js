@@ -304,7 +304,14 @@ const classroomBadge = document.getElementById('classroom-badge');
 const classroomPlayersCount = document.getElementById('classroom-players-count');
 const headerClassroomBtn = document.getElementById('header-classroom-btn');
 const serverUrlInput = document.getElementById('server-url-input');
+const serverUrlInputTop = document.getElementById('server-url-input-top');
 const updateServerBtn = document.getElementById('update-server-btn');
+const testConnectionBtn = document.getElementById('test-connection-btn');
+const testConnectionBtnTop = document.getElementById('test-connection-btn-top');
+const connectionStatus = document.getElementById('connection-status');
+const connectionStatusText = document.getElementById('connection-status-text');
+const connectionStatusTop = document.getElementById('connection-status-top');
+const connectionStatusTextTop = document.getElementById('connection-status-text-top');
 
 // Initialize Game
 function init() {
@@ -360,11 +367,34 @@ function init() {
     if (updateServerBtn) {
         updateServerBtn.addEventListener('click', updateServerUrl);
     }
+    if (testConnectionBtn) {
+        testConnectionBtn.addEventListener('click', () => testServerConnection(serverUrlInput, connectionStatus, connectionStatusText, testConnectionBtn));
+    }
+    if (testConnectionBtnTop) {
+        testConnectionBtnTop.addEventListener('click', () => testServerConnection(serverUrlInputTop, connectionStatusTop, connectionStatusTextTop, testConnectionBtnTop));
+    }
     if (serverUrlInput) {
         serverUrlInput.value = classroomManager.serverUrl;
         serverUrlInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 updateServerUrl();
+            }
+        });
+    }
+    if (serverUrlInputTop) {
+        serverUrlInputTop.value = classroomManager.serverUrl;
+        serverUrlInputTop.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                updateServerUrlFromTop();
+            }
+        });
+        // Sync top input with main input when it changes
+        serverUrlInputTop.addEventListener('blur', () => {
+            if (serverUrlInputTop.value.trim()) {
+                classroomManager.setServerUrl(serverUrlInputTop.value.trim());
+                if (serverUrlInput) {
+                    serverUrlInput.value = serverUrlInputTop.value;
+                }
             }
         });
     }
@@ -1028,7 +1058,11 @@ async function joinClassroom() {
     }
     
     try {
-        // Update server URL if changed
+        // Update server URL from top input if it was changed
+        if (serverUrlInputTop && serverUrlInputTop.value.trim()) {
+            classroomManager.setServerUrl(serverUrlInputTop.value.trim());
+        }
+        // Also check main input
         if (serverUrlInput && serverUrlInput.value !== classroomManager.serverUrl) {
             classroomManager.setServerUrl(serverUrlInput.value);
         }
@@ -1037,13 +1071,17 @@ async function joinClassroom() {
         classroomCodeDisplay.textContent = code;
         classroomInfo.style.display = 'block';
         classroomCodeInput.value = '';
+        // Sync both inputs
         if (serverUrlInput) {
             serverUrlInput.value = classroomManager.serverUrl;
+        }
+        if (serverUrlInputTop) {
+            serverUrlInputTop.value = classroomManager.serverUrl;
         }
         classroomManager.updatePlayersDisplay();
         alert(`Successfully joined classroom ${code}!`);
     } catch (error) {
-        alert('Error joining classroom: ' + error.message + '\n\nMake sure:\n1. The code is correct\n2. The server is running at: ' + classroomManager.serverUrl);
+        alert('Error joining classroom: ' + error.message + '\n\nMake sure:\n1. The code is correct\n2. The server is running at: ' + classroomManager.serverUrl + '\n3. You tested the connection first');
     }
 }
 
@@ -1055,6 +1093,85 @@ function updateServerUrl() {
             classroomManager.setServerUrl(newUrl);
             alert('Server URL updated to: ' + newUrl + '\n\nYou may need to rejoin the classroom.');
         }
+    }
+}
+
+// Update Server URL from top input
+function updateServerUrlFromTop() {
+    if (serverUrlInputTop) {
+        const newUrl = serverUrlInputTop.value.trim();
+        if (newUrl) {
+            classroomManager.setServerUrl(newUrl);
+            if (serverUrlInput) {
+                serverUrlInput.value = newUrl;
+            }
+        }
+    }
+}
+
+// Test Server Connection (generic function that works with any input/status elements)
+async function testServerConnection(inputElement, statusElement, statusTextElement, buttonElement) {
+    if (!inputElement) return;
+    
+    const url = inputElement.value.trim();
+    if (!url) {
+        showConnectionStatus('Please enter a server URL', 'error', statusElement, statusTextElement);
+        return;
+    }
+    
+    // Update the server URL temporarily for testing
+    const originalUrl = classroomManager.serverUrl;
+    classroomManager.setServerUrl(url);
+    
+    // Show testing status
+    showConnectionStatus('Testing connection...', 'testing', statusElement, statusTextElement);
+    if (buttonElement) {
+        buttonElement.disabled = true;
+        const originalText = buttonElement.textContent;
+        buttonElement.textContent = 'Testing...';
+        
+        try {
+            const isConnected = await classroomManager.testConnection();
+            if (isConnected) {
+                showConnectionStatus('✅ Connection successful!', 'success', statusElement, statusTextElement);
+                // Update both inputs if successful
+                if (serverUrlInput && inputElement !== serverUrlInput) {
+                    serverUrlInput.value = url;
+                }
+                if (serverUrlInputTop && inputElement !== serverUrlInputTop) {
+                    serverUrlInputTop.value = url;
+                }
+            } else {
+                showConnectionStatus('❌ Connection failed - Server not responding', 'error', statusElement, statusTextElement);
+                // Restore original URL if test failed
+                classroomManager.setServerUrl(originalUrl);
+            }
+        } catch (error) {
+            showConnectionStatus(`❌ Connection error: ${error.message}`, 'error', statusElement, statusTextElement);
+            // Restore original URL if test failed
+            classroomManager.setServerUrl(originalUrl);
+        } finally {
+            buttonElement.disabled = false;
+            buttonElement.textContent = originalText;
+        }
+    }
+}
+
+// Show connection status (generic function)
+function showConnectionStatus(message, type, statusElement, statusTextElement) {
+    if (!statusElement || !statusTextElement) return;
+    
+    statusElement.style.display = 'block';
+    statusTextElement.textContent = message;
+    statusElement.className = `connection-status connection-${type}`;
+    
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            if (statusElement.className.includes('success')) {
+                statusElement.style.display = 'none';
+            }
+        }, 5000);
     }
 }
 

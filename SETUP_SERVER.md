@@ -231,6 +231,14 @@ Press `Ctrl + C`
 
 ## Complete Setup for Multiplayer (Classroom Feature)
 
+### New Features: Connection Testing & Server URL Configuration
+
+The game now includes:
+- **Connection Test Button:** Test server connectivity before joining
+- **Server URL Input:** Configure server URL at the top of the classroom screen
+- **Better Error Messages:** Detailed error messages explain connection issues
+- **Network Access:** Server automatically detects and displays network IP
+
 ### Step 1: Install Node.js
 Follow Method 3, Step 1 above
 
@@ -251,9 +259,15 @@ npm start
 
 You should see:
 ```
-🚀 Classroom server running on http://localhost:3000
-📚 Ready to manage classrooms!
+🚀 Classroom server running!
+📚 Local: http://localhost:3000
+🌐 Network: http://192.168.1.100:3000
+
+💡 Share the network URL with others to join your classroom!
+   Make sure they use: http://192.168.1.100:3000 as the server URL
 ```
+
+**Important:** Note the **Network** URL - this is what others need to use to join your classroom!
 
 **Keep this terminal open!**
 
@@ -279,9 +293,13 @@ Go to: `http://localhost:8000`
 
 1. Open the game in two different browser tabs/windows
 2. Click "Join/Create Classroom" in both
-3. Create a classroom in one tab
-4. Join with the code in the other tab
-5. Both should see each other!
+3. **Set Server URL** (at the top of the classroom screen):
+   - For same computer: Use `http://localhost:3000`
+   - For network access: Use the Network URL shown when starting server (e.g., `http://192.168.1.100:3000`)
+   - Click "Test" button to verify connection (should show ✅ Connection successful!)
+4. Create a classroom in one tab
+5. Join with the code in the other tab
+6. Both should see each other in the "Active Players" list!
 
 ---
 
@@ -327,6 +345,8 @@ Then open: `http://localhost:8080`
 2. Are you using `http://localhost:8000` (not `file://`)
 3. Check browser console (F12) for errors
 4. Try a different browser
+5. **For classroom server:** Use the "Test Connection" button in the classroom screen to verify server is reachable
+6. **For network access:** Make sure you're using the Network IP (not localhost) when joining from another device
 
 ### Server starts but page doesn't load
 
@@ -342,6 +362,25 @@ Then open: `http://localhost:8080`
 2. Hard refresh: `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac)
 3. Check browser console (F12) for errors
 4. Click the "Test" button in the game to see diagnostics
+
+### "Cannot connect to server" when joining classroom
+
+**Solutions:**
+1. **Test the connection first:** Use the "Test Connection" button at the top of the classroom screen
+2. **Check server URL:**
+   - Same computer: Use `http://localhost:3000`
+   - Network access: Use the Network IP shown when starting server (e.g., `http://192.168.1.100:3000`)
+3. **Verify server is running:** Check the terminal where you ran `npm start`
+4. **Check firewall:** Windows Firewall may be blocking port 3000
+5. **Check error message:** The game now shows detailed error messages explaining what went wrong
+
+### "Classroom not found" error
+
+**Solutions:**
+1. Verify the classroom code is correct (6 digits)
+2. Make sure you're using the **same server URL** as the classroom creator
+3. Check that the creator's server is still running
+4. If joining from another device, use the creator's Network IP (not localhost)
 
 ---
 
@@ -373,6 +412,7 @@ Press `Ctrl + C` in the terminal
 ## Recommended Setup for Development
 
 1. **Terminal 1:** Backend server (`npm start`)
+   - Note the Network URL shown (e.g., `http://192.168.1.100:3000`)
 2. **Terminal 2:** Game server (`python -m http.server 8000`)
 3. **Browser:** `http://localhost:8000`
 
@@ -380,6 +420,21 @@ This gives you:
 - ✅ Phantom wallet connection
 - ✅ Multiplayer classrooms
 - ✅ Real-time leaderboard sync
+- ✅ Connection testing before joining
+- ✅ Network access for other devices
+
+### Using the Connection Test Feature
+
+1. **Before joining a classroom:**
+   - Enter the server URL in the "Server URL" field at the top
+   - Click "Test" button
+   - Wait for connection status (✅ success or ❌ error)
+   - If successful, proceed to join/create classroom
+
+2. **For network access:**
+   - Use the Network IP shown when starting the backend server
+   - Example: If server shows `http://192.168.1.100:3000`, use that in the Server URL field
+   - Test the connection first to verify it works
 
 ---
 
@@ -401,9 +456,44 @@ For making the game available online:
 
 ---
 
+## Network Access for Multiplayer
+
+### Allowing Others to Join Your Classroom
+
+1. **Start the backend server:**
+   ```bash
+   npm start
+   ```
+   Note the **Network** URL (e.g., `http://192.168.1.100:3000`)
+
+2. **In the game:**
+   - Go to Classroom screen
+   - Enter the Network URL in the "Server URL" field at the top
+   - Click "Test" to verify connection
+   - Create or join a classroom
+
+3. **Share with others:**
+   - Share the **Network URL** (not localhost!)
+   - Share the **classroom code**
+   - Others must use the same Network URL to join
+
+4. **For others joining:**
+   - Enter the Network URL in the Server URL field
+   - Click "Test" to verify connection
+   - Enter the classroom code
+   - Click "Join"
+
+**Important:** All players must be on the same network (same Wi-Fi) for this to work!
+
+For more details, see `NETWORK_SETUP.md`
+
+---
+
 ## Need Help?
 
+- **Connection issues:** Use the "Test Connection" button in the classroom screen
 - Check browser console (F12) for errors
 - Check terminal for server errors
 - Verify all files are in the correct location
 - Make sure ports 8000 and 3000 are not blocked by firewall
+- **For network access:** Use the Network IP shown when starting server (not localhost)

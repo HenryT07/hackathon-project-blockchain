@@ -1,17 +1,35 @@
 // Simple Node.js server for classroom management
 // Run with: node server.js
 
-const express = require('express');
-const cors = require('cors');
+// Check for required modules
+try {
+    var express = require('express');
+    var cors = require('cors');
+} catch (error) {
+    console.error('❌ Error: Missing dependencies!');
+    console.error('Please run: npm install');
+    process.exit(1);
+}
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // In-memory storage (use database in production)
 const classrooms = new Map();
 const scores = new Map();
 
-app.use(cors());
+// CORS configuration - allow all origins for development
+app.use(cors({
+    origin: '*', // Allow all origins (change in production)
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
+
+// Test endpoint to verify server is reachable
+app.get('/api/test', (req, res) => {
+    res.json({ success: true, message: 'Server is running', timestamp: Date.now() });
+});
 
 // Create classroom
 app.post('/api/classroom/create', (req, res) => {
@@ -145,12 +163,38 @@ function getLocalIP() {
 
 const LOCAL_IP = getLocalIP();
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err);
+    res.status(500).json({ error: 'Internal server error', message: err.message });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
+
 // Listen on all network interfaces (0.0.0.0) so others can connect
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Classroom server running!`);
     console.log(`📚 Local: http://localhost:${PORT}`);
     console.log(`🌐 Network: http://${LOCAL_IP}:${PORT}`);
     console.log(`\n💡 Share the network URL with others to join your classroom!`);
     console.log(`   Make sure they use: http://${LOCAL_IP}:${PORT} as the server URL`);
+});
+
+// Handle server errors
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`\n❌ Error: Port ${PORT} is already in use!`);
+        console.error('\n💡 Solutions:');
+        console.error(`1. Stop the other application using port ${PORT}`);
+        console.error('2. Or change PORT in server.js to a different number (e.g., 3001)');
+        console.error('3. Or set PORT environment variable: $env:PORT=3001; node server.js (Windows)');
+        console.error('   Or: PORT=3001 node server.js (Mac/Linux)');
+    } else {
+        console.error('❌ Error starting server:', err.message);
+    }
+    process.exit(1);
 });
 

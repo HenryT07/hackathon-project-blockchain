@@ -102,10 +102,39 @@ class ClassroomManager {
         }
     }
 
+    // Test server connection
+    async testConnection() {
+        try {
+            const response = await fetch(`${this.serverUrl}/api/test`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Connection test failed:', error);
+            return false;
+        }
+    }
+
     // Join an existing classroom
     async joinClassroom(code) {
         try {
             this.classroomCode = code.toUpperCase();
+            
+            // First, test if server is reachable
+            const serverReachable = await this.testConnection();
+            if (!serverReachable) {
+                // Try to provide helpful error message
+                const errorMsg = `Cannot connect to server at ${this.serverUrl}\n\n` +
+                    `Possible issues:\n` +
+                    `1. Server is not running\n` +
+                    `2. Wrong server URL (check the Server URL field)\n` +
+                    `3. Firewall blocking connection\n` +
+                    `4. CORS error (server needs to allow your origin)\n\n` +
+                    `For local network: Use http://YOUR_IP:3000 (not localhost)\n` +
+                    `For same computer: Use http://localhost:3000`;
+                throw new Error(errorMsg);
+            }
             
             // Try to connect to backend
             try {
@@ -113,7 +142,7 @@ class ClassroomManager {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        code: code,
+                        code: this.classroomCode,
                         playerId: this.playerId,
                         playerName: this.playerName
                     })
@@ -122,25 +151,28 @@ class ClassroomManager {
                 if (response.ok) {
                     const data = await response.json();
                     this.isConnected = true;
-                    this.players = data.players || [];
+                    this.players = data.classroom?.players || data.players || [];
                     this.startPolling();
                     return true;
                 } else {
-                    throw new Error('Classroom not found');
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 404) {
+                        throw new Error(`Classroom code "${this.classroomCode}" not found. Make sure:\n1. The code is correct (6 digits)\n2. The classroom was created on the same server\n3. The server URL matches the creator's server`);
+                    } else {
+                        throw new Error(errorData.error || `Server error: ${response.status} ${response.statusText}`);
+                    }
                 }
             } catch (error) {
-                console.warn('Backend not available, using localStorage fallback:', error);
-            }
-            
-            // Fallback: Check localStorage
-            const classroom = this.loadClassroomFromLocal(code);
-            if (classroom) {
-                this.isConnected = false;
-                this.players = classroom.players || [];
-                this.addPlayerToLocal();
-                return true;
-            } else {
-                throw new Error('Classroom not found');
+                // If it's a network error, provide better message
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    throw new Error(`Network error: Cannot reach server at ${this.serverUrl}\n\nMake sure:\n1. Server is running\n2. Server URL is correct\n3. No firewall blocking`);
+                }
+                // Re-throw if it's already a formatted error
+                if (error.message.includes('Classroom code') || error.message.includes('Server error')) {
+                    throw error;
+                }
+                // Otherwise, it's a connection issue
+                throw new Error(`Connection failed: ${error.message}\n\nServer URL: ${this.serverUrl}`);
             }
         } catch (error) {
             console.error('Error joining classroom:', error);
