@@ -1,0 +1,21 @@
+[package]
+name = "trivia-game"
+version = "0.1.0"
+description = "Solana Trivia Game with Prize Pool and Leaderboard"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "trivia_game"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
+
