@@ -303,6 +303,8 @@ const currentClassroomCode = document.getElementById('current-classroom-code');
 const classroomBadge = document.getElementById('classroom-badge');
 const classroomPlayersCount = document.getElementById('classroom-players-count');
 const headerClassroomBtn = document.getElementById('header-classroom-btn');
+const serverUrlInput = document.getElementById('server-url-input');
+const updateServerBtn = document.getElementById('update-server-btn');
 
 // Initialize Game
 function init() {
@@ -352,6 +354,17 @@ function init() {
         classroomCodeInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 joinClassroom();
+            }
+        });
+    }
+    if (updateServerBtn) {
+        updateServerBtn.addEventListener('click', updateServerUrl);
+    }
+    if (serverUrlInput) {
+        serverUrlInput.value = classroomManager.serverUrl;
+        serverUrlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                updateServerUrl();
             }
         });
     }
@@ -982,19 +995,27 @@ function closeLeaderboard() {
 // Classroom Functions (defined here to avoid loading issues)
 async function createClassroom() {
     try {
+        // Update server URL if changed
+        if (serverUrlInput && serverUrlInput.value !== classroomManager.serverUrl) {
+            classroomManager.setServerUrl(serverUrlInput.value);
+        }
+        
         const code = await classroomManager.createClassroom();
         classroomCodeDisplay.textContent = code;
         classroomInfo.style.display = 'block';
+        if (serverUrlInput) {
+            serverUrlInput.value = classroomManager.serverUrl;
+        }
         classroomManager.updatePlayersDisplay();
         
         // Copy code to clipboard
         navigator.clipboard.writeText(code).then(() => {
-            alert(`Classroom created! Code: ${code}\n\nCode copied to clipboard - share it with others!`);
+            alert(`Classroom created! Code: ${code}\n\nCode copied to clipboard - share it with others!\n\nServer: ${classroomManager.serverUrl}`);
         }).catch(() => {
-            alert(`Classroom created! Code: ${code}\n\nShare this code with others to join!`);
+            alert(`Classroom created! Code: ${code}\n\nShare this code with others to join!\n\nServer: ${classroomManager.serverUrl}`);
         });
     } catch (error) {
-        alert('Error creating classroom: ' + error.message);
+        alert('Error creating classroom: ' + error.message + '\n\nMake sure the server is running at: ' + classroomManager.serverUrl);
     }
 }
 
@@ -1007,14 +1028,33 @@ async function joinClassroom() {
     }
     
     try {
+        // Update server URL if changed
+        if (serverUrlInput && serverUrlInput.value !== classroomManager.serverUrl) {
+            classroomManager.setServerUrl(serverUrlInput.value);
+        }
+        
         await classroomManager.joinClassroom(code);
         classroomCodeDisplay.textContent = code;
         classroomInfo.style.display = 'block';
         classroomCodeInput.value = '';
+        if (serverUrlInput) {
+            serverUrlInput.value = classroomManager.serverUrl;
+        }
         classroomManager.updatePlayersDisplay();
         alert(`Successfully joined classroom ${code}!`);
     } catch (error) {
-        alert('Error joining classroom: ' + error.message + '\n\nMake sure the code is correct!');
+        alert('Error joining classroom: ' + error.message + '\n\nMake sure:\n1. The code is correct\n2. The server is running at: ' + classroomManager.serverUrl);
+    }
+}
+
+// Update Server URL
+function updateServerUrl() {
+    if (serverUrlInput) {
+        const newUrl = serverUrlInput.value.trim();
+        if (newUrl) {
+            classroomManager.setServerUrl(newUrl);
+            alert('Server URL updated to: ' + newUrl + '\n\nYou may need to rejoin the classroom.');
+        }
     }
 }
 
