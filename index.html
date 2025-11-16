@@ -257,6 +257,7 @@
             </div>
         </div>
 
+<<<<<<< HEAD
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-value" id="totalStaked">0.0000</div>
@@ -308,6 +309,33 @@
                     <div style="margin-bottom: 0.5rem;">Keystroke Progress:</div>
                     <div class="progress-bar">
                         <div class="progress-fill progress-keystroke" id="keystrokeProgress" style="width: 0%"></div>
+=======
+        <!-- Classroom Screen -->
+        <div id="classroom-screen" class="screen">
+            <div class="classroom-content">
+                <h2>🏫 Join or Create Classroom</h2>
+                <div class="classroom-options">
+                    <div class="classroom-option">
+                        <h3>Create Classroom</h3>
+                        <button id="create-classroom-btn" class="btn btn-primary">Create New Classroom</button>
+                    </div>
+                    <div class="classroom-divider">OR</div>
+                    <div class="classroom-option">
+                        <h3>Join Classroom</h3>
+                        <input type="text" id="classroom-code-input" placeholder="Enter 6-digit code" maxlength="6" class="classroom-input">
+                        <button id="join-classroom-btn" class="btn btn-secondary">Join</button>
+                    </div>
+                </div>
+                <div id="classroom-info" class="classroom-info" style="display: none;">
+                    <h3>Classroom: <span id="classroom-code-display"></span></h3>
+                    <p>Share this code with others to join!</p>
+<<<<<<< HEAD
+                    <div class="server-config" id="server-config">
+                        <label for="server-url-input">Server URL:</label>
+                        <input type="text" id="server-url-input" class="server-url-input" placeholder="http://localhost:3000">
+                        <button id="update-server-btn" class="btn btn-small">Update</button>
+                        <p class="server-hint">💡 For others to join: Use your computer's IP address (e.g., http://192.168.1.100:3000)</p>
+>>>>>>> parent of 87afa4b (maybe good?)
                     </div>
                 </div>
 
@@ -324,6 +352,14 @@
             <div id="sessionComplete" style="display: none;">
                 <div class="success">
                     ✅ Session completed successfully! Rewards have been distributed.
+=======
+                    <div class="active-players">
+                        <h4>Active Players: <span id="player-count">0</span></h4>
+                        <div id="players-list" class="players-list"></div>
+                    </div>
+                    <button id="start-classroom-game-btn" class="btn btn-primary">Start Game</button>
+                    <button id="leave-classroom-btn" class="btn btn-danger">Leave Classroom</button>
+>>>>>>> parent of 497de0f (online now?)
                 </div>
             </div>
         </div>
